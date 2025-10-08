@@ -5,6 +5,7 @@ import time
 
 from dataclasses import dataclass
 from gettext import gettext as _
+from PIL import Image, ImageDraw
 
 from seedsigner.gui.components import Fonts, GUIConstants, load_image
 from seedsigner.gui.screens.screen import BaseScreen
@@ -20,7 +21,8 @@ logger = logging.getLogger(__name__)
 class LogoScreen(BaseScreen):
     def __init__(self):
         super().__init__()
-        self.logo = load_image("logo_red_240.png")
+        # Load white logo and colorize it based on settings
+        self.logo = self._load_colorized_logo()
 
         self.partners = [
             "hrf",
@@ -30,6 +32,52 @@ class LogoScreen(BaseScreen):
         for partner in self.partners:
             logo_url = os.path.join("partners", f"{partner}_logo.png")
             self.partner_logos[partner] = load_image(logo_url)
+
+
+    def _load_colorized_logo(self) -> Image.Image:
+        """Load logo and apply the color from settings"""
+        # Load the base logo (assuming black/white logo exists)
+        try:
+            logo = load_image("logo_black_240.png")
+        except:
+            # Fallback to red if black doesn't exist
+            try:
+                logo = load_image("logo_red_240.png")
+            except:
+                # Create a placeholder if no logo exists
+                logo = Image.new("RGB", (240, 240), "black")
+
+        # Get the logo color from settings
+        logo_color = Settings.get_instance().get_value(SettingsConstants.SETTING__LOGO_COLOR)
+
+        if not logo_color or logo_color == "#000000":
+            # If no custom color set or black, return original logo
+            return logo
+
+        # Convert logo to RGBA for processing
+        logo = logo.convert("RGBA")
+
+        # Parse hex color
+        hex_color = logo_color.lstrip('#')
+        r = int(hex_color[0:2], 16)
+        g = int(hex_color[2:4], 16)
+        b = int(hex_color[4:6], 16)
+
+        # Create a colorized version
+        # Extract the logo shape (assuming dark logo on light background or vice versa)
+        data = logo.getdata()
+        new_data = []
+
+        for item in data:
+            # If pixel is dark (logo part), replace with the selected color
+            # Otherwise keep it transparent/white
+            if item[0] < 128:  # Dark pixel (logo)
+                new_data.append((r, g, b, item[3]))
+            else:  # Light pixel (background)
+                new_data.append(item)
+
+        logo.putdata(new_data)
+        return logo.convert("RGB")
 
 
     def _run(self):
@@ -106,7 +154,7 @@ class OpeningSplashScreen(LogoScreen):
         logo_height = 70
         version_x = int(self.renderer.canvas_width/2)
         version_y = int(self.canvas_height/2) + int(logo_height/2) + logo_offset_y + GUIConstants.COMPONENT_PADDING
-        self.renderer.draw.text(xy=(version_x, version_y), text=version, font=font, fill=GUIConstants.ACCENT_COLOR, anchor="mt")
+        self.renderer.draw.text(xy=(version_x, version_y), text=version, font=font, fill=GUIConstants.get_accent_color(), anchor="mt")
 
         if not self.is_screenshot_renderer:
             self.renderer.show_image()

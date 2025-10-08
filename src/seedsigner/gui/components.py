@@ -27,18 +27,32 @@ class GUIConstants:
     COMPONENT_PADDING = 8
     LIST_ITEM_PADDING = 4
 
-    BACKGROUND_COLOR = "#000000"
-    INACTIVE_COLOR = "#414141"
-    ACCENT_COLOR = "#FF0004"
-    WARNING_COLOR = "#FFD60A"
-    DIRE_WARNING_COLOR = "#FF0004"
-    ERROR_COLOR = "#FF0004"
-    SUCCESS_COLOR = "#30D158"
-    INFO_COLOR = "#409CFF"
-    BITCOIN_ORANGE = "#FF0004"
+    # Default color values (used as fallbacks)
+    _DEFAULT_BACKGROUND_COLOR = "#000000"
+    _DEFAULT_INACTIVE_COLOR = "#414141"
+    _DEFAULT_ACCENT_COLOR = "#FF0004"
+    _DEFAULT_WARNING_COLOR = "#FFD60A"
+    _DEFAULT_DIRE_WARNING_COLOR = "#FF0004"
+    _DEFAULT_ERROR_COLOR = "#FF0004"
+    _DEFAULT_SUCCESS_COLOR = "#30D158"
+    _DEFAULT_INFO_COLOR = "#409CFF"
+    _DEFAULT_BITCOIN_ORANGE = "#FF0004"
+    _DEFAULT_BUTTON_BACKGROUND_COLOR = "#2C2C2C"
+
+    BACKGROUND_COLOR = _DEFAULT_BACKGROUND_COLOR
+    INACTIVE_COLOR = _DEFAULT_INACTIVE_COLOR
+    INFO_COLOR = _DEFAULT_INFO_COLOR
+    BITCOIN_ORANGE = _DEFAULT_BITCOIN_ORANGE
     TESTNET_COLOR = "#00F100"
     REGTEST_COLOR = "#00CAF1"
     GREEN_INDICATOR_COLOR = "#00FF00"
+
+    # Dynamic colors (properties will override these)
+    ACCENT_COLOR = _DEFAULT_ACCENT_COLOR
+    WARNING_COLOR = _DEFAULT_WARNING_COLOR
+    DIRE_WARNING_COLOR = _DEFAULT_DIRE_WARNING_COLOR
+    ERROR_COLOR = _DEFAULT_ERROR_COLOR
+    SUCCESS_COLOR = _DEFAULT_SUCCESS_COLOR
 
     ICON_FONT_NAME__FONT_AWESOME = "Font_Awesome_6_Free-Solid-900"
     ICON_FONT_NAME__SEEDSIGNER = "seedsigner-icons"
@@ -99,11 +113,61 @@ class GUIConstants:
         SettingsConstants.LOCALE__CHINESE_SIMPLIFIED: 20,
     }
     BUTTON_FONT_COLOR = "#FCFCFC"
-    BUTTON_BACKGROUND_COLOR = "#2C2C2C"
+    BUTTON_BACKGROUND_COLOR = _DEFAULT_BUTTON_BACKGROUND_COLOR
     BUTTON_HEIGHT = 32
     BUTTON_SELECTED_FONT_COLOR = BACKGROUND_COLOR
-    
+
     NOTIFICATION_COLOR = "#00F100"
+
+
+    @staticmethod
+    def get_accent_color() -> str:
+        """Get accent color from settings or use default"""
+        try:
+            color = Settings.get_instance().get_value(SettingsConstants.SETTING__ACCENT_COLOR)
+            return color if color else GUIConstants._DEFAULT_ACCENT_COLOR
+        except:
+            return GUIConstants._DEFAULT_ACCENT_COLOR
+
+
+    @staticmethod
+    def get_button_background_color() -> str:
+        """Get button background color from settings or use default"""
+        try:
+            color = Settings.get_instance().get_value(SettingsConstants.SETTING__BUTTON_COLOR)
+            return color if color else GUIConstants._DEFAULT_BUTTON_BACKGROUND_COLOR
+        except:
+            return GUIConstants._DEFAULT_BUTTON_BACKGROUND_COLOR
+
+
+    @staticmethod
+    def get_success_color() -> str:
+        """Get success color from settings or use default"""
+        try:
+            color = Settings.get_instance().get_value(SettingsConstants.SETTING__SUCCESS_COLOR)
+            return color if color else GUIConstants._DEFAULT_SUCCESS_COLOR
+        except:
+            return GUIConstants._DEFAULT_SUCCESS_COLOR
+
+
+    @staticmethod
+    def get_warning_color() -> str:
+        """Get warning color from settings or use default"""
+        try:
+            color = Settings.get_instance().get_value(SettingsConstants.SETTING__WARNING_COLOR)
+            return color if color else GUIConstants._DEFAULT_WARNING_COLOR
+        except:
+            return GUIConstants._DEFAULT_WARNING_COLOR
+
+
+    @staticmethod
+    def get_error_color() -> str:
+        """Get error color from settings or use default"""
+        try:
+            color = Settings.get_instance().get_value(SettingsConstants.SETTING__ERROR_COLOR)
+            return color if color else GUIConstants._DEFAULT_ERROR_COLOR
+        except:
+            return GUIConstants._DEFAULT_ERROR_COLOR
 
 
     @staticmethod
@@ -1353,8 +1417,8 @@ class Button(BaseComponent):
     right_icon_size: int = GUIConstants.ICON_INLINE_FONT_SIZE
     right_icon_color: str = GUIConstants.BUTTON_FONT_COLOR
     text_y_offset: int = 0
-    background_color: str = GUIConstants.BUTTON_BACKGROUND_COLOR
-    selected_color: str = GUIConstants.ACCENT_COLOR
+    background_color: str = None  # Will be set dynamically in __post_init__
+    selected_color: str = None  # Will be set dynamically in __post_init__
 
     # Cannot define these class attrs w/the get_*_font_*() methods because the attrs will
     # not be dynamically reinterpreted after initial class import.
@@ -1373,10 +1437,17 @@ class Button(BaseComponent):
     def __post_init__(self):
         if not self.font_name:
             self.font_name = GUIConstants.get_button_font_name()
-        
+
         if not self.font_size:
             self.font_size = GUIConstants.get_button_font_size()
-        
+
+        # Set dynamic colors if not already set
+        if not self.background_color:
+            self.background_color = GUIConstants.get_button_background_color()
+
+        if not self.selected_color:
+            self.selected_color = GUIConstants.get_accent_color()
+
         super().__post_init__()
 
         if not self.width:
@@ -1384,7 +1455,7 @@ class Button(BaseComponent):
 
         if not self.height:
             self.height = GUIConstants.BUTTON_HEIGHT
-        
+
         if not self.icon_color:
             self.icon_color = GUIConstants.BUTTON_FONT_COLOR
 

@@ -100,8 +100,90 @@ class SettingsMenuView(View):
         elif settings_entries[selected_menu_num].attr_name == SettingsConstants.SETTING__LOCALE:
             return Destination(LocaleSelectionView)
 
+        elif settings_entries[selected_menu_num].attr_name in [
+            SettingsConstants.SETTING__LOGO_COLOR,
+            SettingsConstants.SETTING__ACCENT_COLOR,
+            SettingsConstants.SETTING__BUTTON_COLOR,
+            SettingsConstants.SETTING__SUCCESS_COLOR,
+            SettingsConstants.SETTING__WARNING_COLOR,
+            SettingsConstants.SETTING__ERROR_COLOR,
+        ]:
+            return Destination(ColorPickerView, view_args=dict(
+                setting_attr=settings_entries[selected_menu_num].attr_name,
+                parent_initial_scroll=initial_scroll
+            ))
+
         else:
             return Destination(SettingsEntryUpdateSelectionView, view_args=dict(attr_name=settings_entries[selected_menu_num].attr_name, parent_initial_scroll=initial_scroll))
+
+
+
+class ColorPickerView(View):
+    """Generic view for selecting colors using the color picker"""
+    def __init__(self, setting_attr: str, parent_initial_scroll: int = 0):
+        super().__init__()
+        self.setting_attr = setting_attr
+        self.parent_initial_scroll = parent_initial_scroll
+
+    def run(self):
+        from seedsigner.gui.screens.color_picker_screen import ColorPickerScreen
+
+        # Get settings entry for this attribute
+        settings_entry = SettingsDefinition.get_settings_entry(attr_name=self.setting_attr)
+
+        # Get current color
+        current_color = self.settings.get_value(self.setting_attr)
+        if not current_color:
+            current_color = settings_entry.default_value
+
+        # Create title from display name
+        title = _(f"Select {settings_entry.display_name}")
+
+        # Show color picker
+        selected_color = self.run_screen(
+            ColorPickerScreen,
+            current_color=current_color,
+            title=title
+        )
+
+        if selected_color == RET_CODE__BACK_BUTTON:
+            return Destination(
+                SettingsMenuView,
+                view_args={
+                    "visibility": settings_entry.visibility,
+                    "selected_attr": self.setting_attr,
+                    "initial_scroll": self.parent_initial_scroll,
+                }
+            )
+
+        # Save the selected color
+        self.settings.set_value(self.setting_attr, selected_color)
+
+        return Destination(
+            SettingsMenuView,
+            view_args={
+                "visibility": settings_entry.visibility,
+                "selected_attr": self.setting_attr,
+                "initial_scroll": self.parent_initial_scroll,
+            }
+        )
+
+
+
+class LogoColorPickerView(View):
+    """DEPRECATED: Use ColorPickerView instead. Kept for backwards compatibility."""
+    def __init__(self, parent_initial_scroll: int = 0):
+        super().__init__()
+        self.parent_initial_scroll = parent_initial_scroll
+
+    def run(self):
+        # Redirect to the generic ColorPickerView
+        color_picker = ColorPickerView(
+            setting_attr=SettingsConstants.SETTING__LOGO_COLOR,
+            parent_initial_scroll=self.parent_initial_scroll
+        )
+        color_picker.controller = self.controller
+        return color_picker.run()
 
 
 
