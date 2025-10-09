@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from gettext import gettext as _
 from PIL import Image, ImageDraw
 
-from seedsigner.gui.components import Fonts, GUIConstants, load_image
+from seedsigner.gui.components import Fonts, GUIConstants, load_image, load_svg_with_color
 from seedsigner.gui.screens.screen import BaseScreen
 from seedsigner.models.settings import Settings
 from seedsigner.models.settings_definition import SettingsConstants
@@ -35,49 +35,50 @@ class LogoScreen(BaseScreen):
 
 
     def _load_colorized_logo(self) -> Image.Image:
-        """Load logo and apply the color from settings"""
-        # Load the base logo (assuming black/white logo exists)
-        try:
-            logo = load_image("logo_black_240.png")
-        except:
-            # Fallback to red if black doesn't exist
-            try:
-                logo = load_image("logo_red_240.png")
-            except:
-                # Create a placeholder if no logo exists
-                logo = Image.new("RGB", (240, 240), "black")
-
+        """Load SVG logo and apply the color from settings"""
         # Get the logo color from settings
         logo_color = Settings.get_instance().get_value(SettingsConstants.SETTING__LOGO_COLOR)
 
-        if not logo_color or logo_color == "#000000":
-            # If no custom color set or black, return original logo
+        if not logo_color:
+            logo_color = "#FF7300"  # Default orange color
+
+        # Load SVG with the selected color
+        try:
+            logo = load_svg_with_color("logo.svg", color=logo_color, size=(240, 240))
             return logo
+        except Exception as e:
+            logger.warning(f"Failed to load SVG logo: {e}. Falling back to PNG.")
 
-        # Convert logo to RGBA for processing
-        logo = logo.convert("RGBA")
+            # Fallback to PNG with color transformation
+            try:
+                logo = load_image("logo_black_240.png")
+            except:
+                try:
+                    logo = load_image("logo_red_240.png")
+                except:
+                    logo = Image.new("RGB", (240, 240), "black")
+                    return logo
 
-        # Parse hex color
-        hex_color = logo_color.lstrip('#')
-        r = int(hex_color[0:2], 16)
-        g = int(hex_color[2:4], 16)
-        b = int(hex_color[4:6], 16)
+            if logo_color == "#000000":
+                return logo
 
-        # Create a colorized version
-        # Extract the logo shape (assuming dark logo on light background or vice versa)
-        data = logo.getdata()
-        new_data = []
+            # Apply color transformation to PNG
+            logo = logo.convert("RGBA")
+            hex_color = logo_color.lstrip('#')
+            r = int(hex_color[0:2], 16)
+            g = int(hex_color[2:4], 16)
+            b = int(hex_color[4:6], 16)
 
-        for item in data:
-            # If pixel is dark (logo part), replace with the selected color
-            # Otherwise keep it transparent/white
-            if item[0] < 128:  # Dark pixel (logo)
-                new_data.append((r, g, b, item[3]))
-            else:  # Light pixel (background)
-                new_data.append(item)
+            data = logo.getdata()
+            new_data = []
+            for item in data:
+                if item[0] < 128:
+                    new_data.append((r, g, b, item[3]))
+                else:
+                    new_data.append(item)
 
-        logo.putdata(new_data)
-        return logo.convert("RGB")
+            logo.putdata(new_data)
+            return logo.convert("RGB")
 
 
     def _run(self):

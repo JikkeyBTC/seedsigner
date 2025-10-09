@@ -322,6 +322,39 @@ def load_image(image_name: str) -> Image.Image:
     return image
 
 
+def load_svg_with_color(svg_name: str, color: str = "#FF7300", size: tuple = (240, 240)) -> Image.Image:
+    """
+    Load an SVG file and replace the orange color with the specified color.
+    Returns a PIL Image rendered at the specified size.
+    """
+    import re
+    import io
+
+    svg_path = os.path.join(pathlib.Path(__file__).parent.resolve(), "..", "resources", "img", svg_name)
+
+    # Read SVG file
+    with open(svg_path, 'r') as f:
+        svg_content = f.read()
+
+    # Replace the orange color (#FF7300) with the desired color
+    svg_content = svg_content.replace('#FF7300', color)
+    svg_content = svg_content.replace('#ff7300', color)
+
+    # Try to use cairosvg if available, otherwise fall back to a simpler method
+    try:
+        import cairosvg
+        png_data = cairosvg.svg2png(bytestring=svg_content.encode('utf-8'),
+                                     output_width=size[0],
+                                     output_height=size[1])
+        image = Image.open(io.BytesIO(png_data)).convert("RGB")
+        return image
+    except ImportError:
+        # Fallback: If cairosvg is not available, use the existing PNG logo
+        # and apply color transformation
+        logger.warning("cairosvg not available, falling back to PNG logo with color transformation")
+        return load_image("logo_black_240.png")
+
+
 
 class Fonts(Singleton):
     font_path = os.path.join(

@@ -708,7 +708,7 @@ class SettingsDefinition:
                       display_name=_mft("Logo color"),
                       type=SettingsConstants.TYPE__FREE_ENTRY,
                       visibility=SettingsConstants.VISIBILITY__COLOR_SETTINGS,
-                      default_value="#000000"),
+                      default_value="#FF7300"),
 
         SettingsEntry(category=SettingsConstants.CATEGORY__DISPLAY,
                       attr_name=SettingsConstants.SETTING__BUTTON_COLOR,
