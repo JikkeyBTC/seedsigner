@@ -295,7 +295,7 @@ class ButtonListScreen(BaseTopNavScreen):
     button_font_name: str = None
     button_font_size: int = None
 
-    button_selected_color: str = GUIConstants.ACCENT_COLOR
+    button_selected_color: str = None  # Will be set dynamically in __post_init__
 
     # Params for version of list used for Settings
     Button_cls = Button
@@ -311,6 +311,11 @@ class ButtonListScreen(BaseTopNavScreen):
             self.button_font_name = GUIConstants.get_button_font_name()
         if not self.button_font_size:
             self.button_font_size = GUIConstants.get_button_font_size()
+
+        # Set dynamic color if not already set
+        if not self.button_selected_color:
+            self.button_selected_color = GUIConstants.get_accent_color()
+
         super().__post_init__()
 
         button_height = GUIConstants.BUTTON_HEIGHT
@@ -564,7 +569,7 @@ class LargeButtonScreen(BaseTopNavScreen):
     button_font_name: str = None
     button_font_size: int = None
 
-    button_selected_color: str = GUIConstants.ACCENT_COLOR
+    button_selected_color: str = None  # Will be set dynamically in __post_init__
     selected_button: int = 0
 
     def __post_init__(self):
@@ -573,6 +578,10 @@ class LargeButtonScreen(BaseTopNavScreen):
         if not self.button_font_size:
             # TODO: Define the +2 with a constant or via a formula (e.g. int(x * 1.1))
             self.button_font_size = GUIConstants.get_button_font_size() + 2
+
+        # Set dynamic color if not already set
+        if not self.button_selected_color:
+            self.button_selected_color = GUIConstants.get_accent_color()
 
         super().__post_init__()
 

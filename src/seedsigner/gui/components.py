@@ -30,13 +30,13 @@ class GUIConstants:
     # Default color values (used as fallbacks)
     _DEFAULT_BACKGROUND_COLOR = "#000000"
     _DEFAULT_INACTIVE_COLOR = "#414141"
-    _DEFAULT_ACCENT_COLOR = "#FF0004"
+    _DEFAULT_ACCENT_COLOR = "#FF9F0A"
     _DEFAULT_WARNING_COLOR = "#FFD60A"
-    _DEFAULT_DIRE_WARNING_COLOR = "#FF0004"
-    _DEFAULT_ERROR_COLOR = "#FF0004"
+    _DEFAULT_DIRE_WARNING_COLOR = "#FF9F0A"
+    _DEFAULT_ERROR_COLOR = "#FF9F0A"
     _DEFAULT_SUCCESS_COLOR = "#30D158"
     _DEFAULT_INFO_COLOR = "#409CFF"
-    _DEFAULT_BITCOIN_ORANGE = "#FF0004"
+    _DEFAULT_BITCOIN_ORANGE = "#FF9F0A"
     _DEFAULT_BUTTON_BACKGROUND_COLOR = "#2C2C2C"
 
     BACKGROUND_COLOR = _DEFAULT_BACKGROUND_COLOR
@@ -122,9 +122,9 @@ class GUIConstants:
 
     @staticmethod
     def get_accent_color() -> str:
-        """Get accent color from settings or use default"""
+        """Get accent color from settings (selected buttons, highlights, etc.)"""
         try:
-            color = Settings.get_instance().get_value(SettingsConstants.SETTING__ACCENT_COLOR)
+            color = Settings.get_instance().get_value(SettingsConstants.SETTING__BUTTON_COLOR)
             return color if color else GUIConstants._DEFAULT_ACCENT_COLOR
         except:
             return GUIConstants._DEFAULT_ACCENT_COLOR
@@ -132,42 +132,9 @@ class GUIConstants:
 
     @staticmethod
     def get_button_background_color() -> str:
-        """Get button background color from settings or use default"""
-        try:
-            color = Settings.get_instance().get_value(SettingsConstants.SETTING__BUTTON_COLOR)
-            return color if color else GUIConstants._DEFAULT_BUTTON_BACKGROUND_COLOR
-        except:
-            return GUIConstants._DEFAULT_BUTTON_BACKGROUND_COLOR
-
-
-    @staticmethod
-    def get_success_color() -> str:
-        """Get success color from settings or use default"""
-        try:
-            color = Settings.get_instance().get_value(SettingsConstants.SETTING__SUCCESS_COLOR)
-            return color if color else GUIConstants._DEFAULT_SUCCESS_COLOR
-        except:
-            return GUIConstants._DEFAULT_SUCCESS_COLOR
-
-
-    @staticmethod
-    def get_warning_color() -> str:
-        """Get warning color from settings or use default"""
-        try:
-            color = Settings.get_instance().get_value(SettingsConstants.SETTING__WARNING_COLOR)
-            return color if color else GUIConstants._DEFAULT_WARNING_COLOR
-        except:
-            return GUIConstants._DEFAULT_WARNING_COLOR
-
-
-    @staticmethod
-    def get_error_color() -> str:
-        """Get error color from settings or use default"""
-        try:
-            color = Settings.get_instance().get_value(SettingsConstants.SETTING__ERROR_COLOR)
-            return color if color else GUIConstants._DEFAULT_ERROR_COLOR
-        except:
-            return GUIConstants._DEFAULT_ERROR_COLOR
+        """Get button background color - uses a darker shade for unselected buttons"""
+        # Return default dark gray for button backgrounds
+        return GUIConstants._DEFAULT_BUTTON_BACKGROUND_COLOR
 
 
     @staticmethod

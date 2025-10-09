@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 class SettingsMenuView(View):
     ADVANCED = ButtonOption("Advanced", right_icon_name=SeedSignerIconConstants.CHEVRON_RIGHT)
+    COLOR_SETTINGS = ButtonOption("Color Settings", right_icon_name=SeedSignerIconConstants.CHEVRON_RIGHT)
     HARDWARE = ButtonOption("Hardware", right_icon_name=SeedSignerIconConstants.CHEVRON_RIGHT)
     IO_TEST = ButtonOption("I/O test")
     DONATE = ButtonOption("Donate")
@@ -44,11 +45,18 @@ class SettingsMenuView(View):
             title = _("Settings")
 
             # Set up the next nested level of menuing
+            button_data.append(self.COLOR_SETTINGS)
+            color_settings_destination = Destination(SettingsMenuView, view_args={"visibility": SettingsConstants.VISIBILITY__COLOR_SETTINGS})
+
             button_data.append(self.ADVANCED)
-            next_destination = Destination(SettingsMenuView, view_args={"visibility": SettingsConstants.VISIBILITY__ADVANCED})
+            advanced_destination = Destination(SettingsMenuView, view_args={"visibility": SettingsConstants.VISIBILITY__ADVANCED})
 
             button_data.append(self.IO_TEST)
             button_data.append(self.DONATE)
+
+        elif self.visibility == SettingsConstants.VISIBILITY__COLOR_SETTINGS:
+            title = _("Color Settings")
+            next_destination = None
 
         elif self.visibility == SettingsConstants.VISIBILITY__ADVANCED:
             title = _("Advanced")
@@ -80,13 +88,18 @@ class SettingsMenuView(View):
         if selected_menu_num == RET_CODE__BACK_BUTTON:
             if self.visibility == SettingsConstants.VISIBILITY__GENERAL:
                 return Destination(MainMenuView)
+            elif self.visibility == SettingsConstants.VISIBILITY__COLOR_SETTINGS:
+                return Destination(SettingsMenuView)
             elif self.visibility == SettingsConstants.VISIBILITY__ADVANCED:
                 return Destination(SettingsMenuView)
             else:
                 return Destination(SettingsMenuView, view_args={"visibility": SettingsConstants.VISIBILITY__ADVANCED})
-        
-        if button_data[selected_menu_num] == self.ADVANCED:
-            return next_destination
+
+        if button_data[selected_menu_num] == self.COLOR_SETTINGS:
+            return color_settings_destination
+
+        elif button_data[selected_menu_num] == self.ADVANCED:
+            return advanced_destination
 
         elif button_data[selected_menu_num] == self.HARDWARE:
             return next_destination
@@ -102,11 +115,7 @@ class SettingsMenuView(View):
 
         elif settings_entries[selected_menu_num].attr_name in [
             SettingsConstants.SETTING__LOGO_COLOR,
-            SettingsConstants.SETTING__ACCENT_COLOR,
             SettingsConstants.SETTING__BUTTON_COLOR,
-            SettingsConstants.SETTING__SUCCESS_COLOR,
-            SettingsConstants.SETTING__WARNING_COLOR,
-            SettingsConstants.SETTING__ERROR_COLOR,
         ]:
             return Destination(ColorPickerView, view_args=dict(
                 setting_attr=settings_entries[selected_menu_num].attr_name,

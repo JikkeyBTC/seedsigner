@@ -340,11 +340,7 @@ class SettingsConstants:
     SETTING__QR_BRIGHTNESS_TIPS = "qr_brightness_tips"
     SETTING__PARTNER_LOGOS = "partner_logos"
     SETTING__LOGO_COLOR = "logo_color"
-    SETTING__ACCENT_COLOR = "accent_color"
     SETTING__BUTTON_COLOR = "button_color"
-    SETTING__SUCCESS_COLOR = "success_color"
-    SETTING__WARNING_COLOR = "warning_color"
-    SETTING__ERROR_COLOR = "error_color"
 
     SETTING__DEBUG = "debug"
 
@@ -375,6 +371,7 @@ class SettingsConstants:
 
     VISIBILITY__GENERAL = "general"
     VISIBILITY__ADVANCED = "advanced"
+    VISIBILITY__COLOR_SETTINGS = "color_settings"
     VISIBILITY__HARDWARE = "hardware"
     VISIBILITY__DEVELOPER = "developer"
     VISIBILITY__HIDDEN = "hidden"   # For data-only (e.g. custom_derivation), not configurable by the user
@@ -710,47 +707,15 @@ class SettingsDefinition:
                       abbreviated_name="logo_color",
                       display_name=_mft("Logo color"),
                       type=SettingsConstants.TYPE__FREE_ENTRY,
-                      visibility=SettingsConstants.VISIBILITY__GENERAL,
+                      visibility=SettingsConstants.VISIBILITY__COLOR_SETTINGS,
                       default_value="#000000"),
-
-        SettingsEntry(category=SettingsConstants.CATEGORY__DISPLAY,
-                      attr_name=SettingsConstants.SETTING__ACCENT_COLOR,
-                      abbreviated_name="accent_color",
-                      display_name=_mft("Accent color"),
-                      type=SettingsConstants.TYPE__FREE_ENTRY,
-                      visibility=SettingsConstants.VISIBILITY__GENERAL,
-                      default_value="#FF0004"),
 
         SettingsEntry(category=SettingsConstants.CATEGORY__DISPLAY,
                       attr_name=SettingsConstants.SETTING__BUTTON_COLOR,
                       abbreviated_name="button_color",
                       display_name=_mft("Button color"),
                       type=SettingsConstants.TYPE__FREE_ENTRY,
-                      visibility=SettingsConstants.VISIBILITY__GENERAL,
-                      default_value="#2C2C2C"),
-
-        SettingsEntry(category=SettingsConstants.CATEGORY__DISPLAY,
-                      attr_name=SettingsConstants.SETTING__SUCCESS_COLOR,
-                      abbreviated_name="success_color",
-                      display_name=_mft("Success color"),
-                      type=SettingsConstants.TYPE__FREE_ENTRY,
-                      visibility=SettingsConstants.VISIBILITY__ADVANCED,
-                      default_value="#30D158"),
-
-        SettingsEntry(category=SettingsConstants.CATEGORY__DISPLAY,
-                      attr_name=SettingsConstants.SETTING__WARNING_COLOR,
-                      abbreviated_name="warning_color",
-                      display_name=_mft("Warning color"),
-                      type=SettingsConstants.TYPE__FREE_ENTRY,
-                      visibility=SettingsConstants.VISIBILITY__ADVANCED,
-                      default_value="#FFD60A"),
-
-        SettingsEntry(category=SettingsConstants.CATEGORY__DISPLAY,
-                      attr_name=SettingsConstants.SETTING__ERROR_COLOR,
-                      abbreviated_name="error_color",
-                      display_name=_mft("Error color"),
-                      type=SettingsConstants.TYPE__FREE_ENTRY,
-                      visibility=SettingsConstants.VISIBILITY__ADVANCED,
+                      visibility=SettingsConstants.VISIBILITY__COLOR_SETTINGS,
                       default_value="#FF0004"),
 
 
